@@ -13,12 +13,11 @@ public class Main {
     public static void main(String[] args) {
         SAW test = null;
         try {
-            test = new SAW(22, "10.103.6.226", 6868);
+            test = new SAW(22, "10.103.6.226", 40323);
         }
         catch(IOException e){
             System.out.println(e);
         }
-
         // write your code here
 
 //        MyClient client;

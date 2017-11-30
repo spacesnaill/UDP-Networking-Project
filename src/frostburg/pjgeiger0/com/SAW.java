@@ -19,13 +19,14 @@ public class SAW implements Runnable {
     private InetAddress address; //ip we want to send data too
     private int packetDropRate; //holds the value for how often the packets are dropped
     private final int payloadSize = 8000; //how many bytes the packets can hold
-    private boolean ACKreceived = true; //see whether or not the ACK arrived
-    private boolean sendACK = false; //decide whether or not we need to send an ACK
+    private volatile boolean ACKreceived = true; //see whether or not the ACK arrived
+    private volatile boolean sendACK = false; //decide whether or not we need to send an ACK
     private byte[] dataBuffer = new byte[payloadSize];
     private ArrayList<byte[]> packetBuffer = new ArrayList<byte[]>();
     private String fileName = "";
-    private int lastSequenceNumber = 0;
-    private long timeOut = 1000000000;
+    private volatile int lastSequenceNumber = 1;
+    private long timeOut = 2000000000;
+    private int portNumber;
 
 
     //#- - - - - - - - - - Constructor - - - - - - - - - -#
@@ -38,12 +39,14 @@ public class SAW implements Runnable {
      * @throws IOException in the case that the port or address are invalid
      */
     public SAW(int userInput, String ipAddress, int port) throws IOException{
-        socket = new DatagramSocket(port);
         address = InetAddress.getByName(ipAddress); //convert String IP to InetAddress
+        portNumber = port;
         packetDropRate = userInput; //this is how often the packets will be dropped
-        System.out.println("The IP of this computer is: " + socket.getLocalAddress());
-        System.out.println("Listening on port: " + socket.getPort());
-
+        socket = new DatagramSocket(port);
+        System.out.println("The IP of this computer is: " + socket.getInetAddress());
+        System.out.println("Listening on port: " + portNumber);
+        sending.start();
+        receiving.start();
     }
 
     //remember that the address can be stripped from the incoming packets and used to send ACKs
@@ -57,47 +60,79 @@ public class SAW implements Runnable {
             running = true;
             long startTime = 0; //time when the last packet was sent, used to see if timeout has happened
             int packetsSentCounter = 0;
-            byte[] fileBuffer = fileToBytes("client_input.txt");
+            byte[] fileBuffer = fileToBytes("windows_file.txt");
             int currentSequenceNumber = 0;
             int segments = numberOfSegments(fileBuffer.length, payloadSize);
             DatagramPacket[] packetBuffer = new DatagramPacket[1];
             while(running){
-                while(packetsSentCounter <= segments){
+//                if(currentSequenceNumber == 0){
+//                    DatagramPacket initialPacket = new DatagramPacket(createPacket(2, 1, "windows_file.txt".getBytes()), "windows_file.txt".getBytes().length, address, portNumber);
+//                    packetBuffer[0] = initialPacket;
+//                    sendPacket(initialPacket);
+//                    ACKreceived = false;
+//                }
+                while(packetsSentCounter <= segments+1){
                     if(sendACK == true){
                         //send an ACK
                         byte[] ackBuffer = new byte[10];
-                        DatagramPacket sendingPacketAck = new DatagramPacket(createPacket(lastSequenceNumber, 3, ackBuffer), ackBuffer.length, address, socket.getPort());
+                        DatagramPacket sendingPacketAck = new DatagramPacket(createPacket(lastSequenceNumber, 3, ackBuffer), ackBuffer.length, address, portNumber);
                         sendPacket(sendingPacketAck);
+                        sendACK = false;
                     }
                     if (ACKreceived == true && packetsSentCounter < segments){
                         //send next packet
                         //make sure the data put into the packet doesn't go over the buffer
                         if(((packetsSentCounter*payloadSize)+payloadSize) >= fileBuffer.length){
                             byte[] packetData = createPacket(currentSequenceNumber, 2, Arrays.copyOfRange(fileBuffer, packetsSentCounter*payloadSize, fileBuffer.length));
-                            DatagramPacket sendingPacket = new DatagramPacket(packetData, packetData.length, address, socket.getPort());
+                            DatagramPacket sendingPacket = new DatagramPacket(packetData, packetData.length, address, portNumber);
                             packetBuffer[0] = sendingPacket;
                             sendPacket(sendingPacket);
                             packetsSentCounter = packetsSentCounter + 1;
+                            System.out.println("Packet sent");
+                            ACKreceived = false;
+                            if(currentSequenceNumber == 0){
+                                currentSequenceNumber = 1;
+
+                            }
+                            else{
+                                currentSequenceNumber = 0;
+                            }
                         }
                         else{
                             byte[] packetData = createPacket(currentSequenceNumber, 2, Arrays.copyOfRange(fileBuffer, packetsSentCounter*payloadSize, packetsSentCounter*payloadSize+payloadSize));
-                            DatagramPacket sendingPacket = new DatagramPacket(packetData, packetData.length, address, socket.getPort());
+                            DatagramPacket sendingPacket = new DatagramPacket(packetData, packetData.length, address, portNumber);
                             packetBuffer[0] = sendingPacket;
                             sendPacket(sendingPacket);
                             packetsSentCounter = packetsSentCounter + 1;
+                            ACKreceived = false;
+                            if(currentSequenceNumber == 0){
+                                currentSequenceNumber = 1;
+                            }
+                            else{
+                                currentSequenceNumber = 0;
+                            }
                         }
                     }
-                    if (((System.nanoTime() - startTime) > timeOut)){
+                    try {
+                        sleep(2500);
+                    }
+                    catch (InterruptedException e){
+                        System.out.println(e);
+                    }
+                    if (ACKreceived == false){
                         //send last packet again
+                        System.out.println("timeout");
                         DatagramPacket sendingPacketPrevious = packetBuffer[0];
                         sendPacket(sendingPacketPrevious);
                     }
                     if(packetsSentCounter == segments && ACKreceived == true){
                         //send packet to signal end of file
                         byte[] endBuffer = new byte[10];
-                        DatagramPacket sendingPacketEnd = new DatagramPacket(createPacket(lastSequenceNumber, 0, endBuffer), endBuffer.length, address, socket.getPort());
+                        DatagramPacket sendingPacketEnd = new DatagramPacket(createPacket(lastSequenceNumber, 0, endBuffer), endBuffer.length, address, portNumber);
                         packetBuffer[0] = sendingPacketEnd;
                         sendPacket(sendingPacketEnd);
+                        ACKreceived = false;
+                        packetsSentCounter = packetsSentCounter + 1;
                     }
                 }//end of nested while loop
 
@@ -108,6 +143,7 @@ public class SAW implements Runnable {
         public void sendPacket(DatagramPacket packet){
             try{
                 socket.send(packet);
+                System.out.println("Sending Packet... Length:" + packet.getLength() + "| Sequence Number: " + byteArrayToInteger(Arrays.copyOfRange(packet.getData(), 0, 2)) + " | Code: " + byteArrayToInteger(Arrays.copyOfRange(packet.getData(),2, 4)));
             }
             catch(IOException e){
                 System.out.println(e);
@@ -119,21 +155,19 @@ public class SAW implements Runnable {
         private boolean running;
         public void run(){
             running = true;
+
             while(running){
+                //System.out.println("hello");
                 byte[] buffer = new byte[payloadSize];
                 DatagramPacket receivingPacket = new DatagramPacket(buffer, buffer.length);
                 try {
+                    //socket.setSoTimeout(1500);
                     socket.receive(receivingPacket);
-                }
-                catch(IOException e){
-                    System.out.println(e);
-                }
-                finally {
                     int code = byteArrayToInteger(Arrays.copyOfRange(receivingPacket.getData(),2, 4));
                     int sequenceNumber = byteArrayToInteger(Arrays.copyOfRange(receivingPacket.getData(), 0, 2));
                     if(code == 2) {
                         System.out.println("Packet received with: " + receivingPacket.getData().length + " bytes within.");
-                        if(sequenceNumber == lastSequenceNumber){
+                        if(sequenceNumber == lastSequenceNumber && packetBuffer.size() > 0){
                             System.out.println("Packet already received, sending another ACK");
                         }
                         else{
@@ -149,13 +183,21 @@ public class SAW implements Runnable {
                     else if(code == 1){
                         fileName = getStringFromByteArray(receivingPacket.getData(), 4);
                         System.out.println(fileName + " now downloading.");
+                        sendACK = true;
                     }//beginning of file packet
                     else if(code == 0){
                         fillPacketBuffer(receivingPacket.getData(), 4);
                         System.out.println("End of file found.");
-                        fileToBytes(fileName);
+                        bytesToFile(packetBufferToByteArray(), fileName);
+                        sendACK = true;
                         System.out.println(fileName + " fully downloaded.");
                     }//end of file packet
+                }
+                catch(IOException e){
+                    System.out.println(e);
+                }
+                finally {
+
                 }
             }
         }//end of run
@@ -163,13 +205,8 @@ public class SAW implements Runnable {
 
     public void run(){
         while(true) {
-            if(socket.isConnected()) {
-                sending.start();
-                receiving.start();
-            }
-            else{
-                System.out.println("Waiting for connection");
-            }
+           sending.start();
+           receiving.start();
         }
     }
 
@@ -183,8 +220,8 @@ public class SAW implements Runnable {
      */
     public byte[] createPacket(int seqNumber, int identificationCode, byte[] data){
         //puts the packets together, the sequence number taking up the first couple of bytes
-        byte[] seqNumBytes = ByteBuffer.allocate(2).putInt(seqNumber).array(); //sequence number to byte array
-        byte[] idCodeBytes = ByteBuffer.allocate(2).putInt(identificationCode).array(); //identification number for what sort of packet this is
+        byte[] seqNumBytes = ByteBuffer.allocate(2).putShort((short)seqNumber).array(); //sequence number to byte array
+        byte[] idCodeBytes = ByteBuffer.allocate(2).putShort((short)identificationCode).array(); //identification number for what sort of packet this is
 
         ByteBuffer packetBuffer = ByteBuffer.allocate(4 + data.length); //allocate space for sequence number and data
         packetBuffer.put(seqNumBytes); //put the sequence number byte array in
