@@ -13,14 +13,12 @@ public class Main {
     public static void main(String[] args) {
         SAW test = null;
         try {
-            test = new SAW(22, "73.34.203.66", 2222);
+            test = new SAW(22, "10.103.6.226", 6868);
         }
         catch(IOException e){
             System.out.println(e);
         }
-        int[] arr = {10, 20, 30, 40, 50, 60, 70, 80};
-        arr = Arrays.copyOfRange(arr, 1,3);
-        System.out.println(arr[1]);
+
         // write your code here
 
 //        MyClient client;

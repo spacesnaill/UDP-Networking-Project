@@ -162,8 +162,15 @@ public class SAW implements Runnable {
     };//end of receiving thread
 
     public void run(){
-        sending.start();
-        receiving.start();
+        while(true) {
+            if(socket.isConnected()) {
+                sending.start();
+                receiving.start();
+            }
+            else{
+                System.out.println("Waiting for connection");
+            }
+        }
     }
 
     //#- - - - - - - - - - Helpers - - - - - - - - - -#
@@ -303,5 +310,10 @@ public class SAW implements Runnable {
 
     public byte[] createFileNamePacket(){
         return null;
+    }
+
+    public void close(){
+        socket.close();
+
     }
 }

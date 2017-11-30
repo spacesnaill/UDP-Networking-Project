@@ -16,11 +16,11 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/frostburg/pjgeiger0/com/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="22" column="32" lean-forward="true" selection-start-line="22" selection-start-column="32" selection-end-line="22" selection-end-column="32" />
+            <state relative-caret-position="204">
+              <caret line="15" column="53" lean-forward="true" selection-start-line="15" selection-start-column="53" selection-end-line="15" selection-end-column="53" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -28,15 +28,15 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SAW.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SAW.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/frostburg/pjgeiger0/com/SAW.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="612">
-              <caret line="96" column="56" lean-forward="true" selection-start-line="96" selection-start-column="56" selection-end-line="96" selection-end-column="56" />
+            <state relative-caret-position="406">
+              <caret line="170" column="61" lean-forward="false" selection-start-line="170" selection-start-column="61" selection-end-line="170" selection-end-column="61" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#12795#12796#0" expanded="true" />
-                <element signature="e#12822#12823#0" expanded="true" />
+                <element signature="e#12990#12991#0" expanded="true" />
+                <element signature="e#13017#13018#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -57,7 +57,7 @@
       <file leaf-file-name="MyClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/frostburg/pjgeiger0/com/MyClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="417">
+            <state relative-caret-position="-552">
               <caret line="36" column="16" lean-forward="true" selection-start-line="36" selection-start-column="16" selection-end-line="36" selection-end-column="16" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -162,8 +162,8 @@
         <option value="$PROJECT_DIR$/server_output.txt" />
         <option value="$PROJECT_DIR$/src/frostburg/pjgeiger0/com/GBN_Client.java" />
         <option value="$PROJECT_DIR$/src/frostburg/pjgeiger0/com/GBN_Server.java" />
-        <option value="$PROJECT_DIR$/src/frostburg/pjgeiger0/com/Main.java" />
         <option value="$PROJECT_DIR$/src/frostburg/pjgeiger0/com/SAW.java" />
+        <option value="$PROJECT_DIR$/src/frostburg/pjgeiger0/com/Main.java" />
       </list>
     </option>
   </component>
@@ -687,19 +687,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/frostburg/pjgeiger0/com/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="22" column="32" lean-forward="true" selection-start-line="22" selection-start-column="32" selection-end-line="22" selection-end-column="32" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/frostburg/pjgeiger0/com/MyClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="417">
+        <state relative-caret-position="-552">
           <caret line="36" column="16" lean-forward="true" selection-start-line="36" selection-start-column="16" selection-end-line="36" selection-end-column="16" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -709,12 +699,22 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/frostburg/pjgeiger0/com/SAW.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="96" column="56" lean-forward="true" selection-start-line="96" selection-start-column="56" selection-end-line="96" selection-end-column="56" />
+        <state relative-caret-position="406">
+          <caret line="170" column="61" lean-forward="false" selection-start-line="170" selection-start-column="61" selection-end-line="170" selection-end-column="61" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#12795#12796#0" expanded="true" />
-            <element signature="e#12822#12823#0" expanded="true" />
+            <element signature="e#12990#12991#0" expanded="true" />
+            <element signature="e#13017#13018#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/frostburg/pjgeiger0/com/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="15" column="53" lean-forward="true" selection-start-line="15" selection-start-column="53" selection-end-line="15" selection-end-column="53" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
